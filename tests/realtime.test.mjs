@@ -357,8 +357,10 @@ test('live client reconnects to a restarted connection and receives later file c
   const connection = new LiveConnection({ query: () => 'system=carddemo', token: () => panel.token, onModel: value => received.push(value), onState: state => states.push(state),
     fetcher: (url, options) => fetch(panel.origin + url, options) });
   try {
-    connection.start(); await until(() => received.length > 0); const initial = received.at(-1).revision;
+    connection.start(); await until(() => received.length > 0);
     panel.server.closeAllConnections(); await until(() => states.includes('reconnecting'));
+    // The fallback snapshot can arrive before the event stream reconnects.
+    await until(() => states.at(-1) === 'live'); const initial = received.at(-1).revision;
     await fs.appendFile(path.join(f.dir, 'MODERNIZATION_BRIEF.md'), '\nAfter reconnect.');
     await until(() => received.at(-1).revision !== initial); assert(received.at(-1).briefText.includes('After reconnect.'));
     assert.equal(states.at(-1), 'live');

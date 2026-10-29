@@ -106,7 +106,8 @@ test('actual Node TAP cancellations count as failed execution', async t => {
 test('actual Node TAP handles empty, skipped and TODO suites without treating them as passing tests', async t => {
   const r = await realTAP(t, `describe('empty', () => {});
 describe.skip('skipped', () => {it('never runs', () => {})});
-describe.todo('todo', () => {it('pending', () => {})});\n`);
+// Node 20 does not inherit a suite's TODO marker in its test summary.
+describe.todo('todo', () => {it.todo('pending', () => {})});\n`);
   assert.equal(r.code, 0);
   assert.deepEqual(parseRunnerLog(r.stdout), [0, 0, 1, ['node --test (TAP)']], r.stdout);
 });
