@@ -21,7 +21,7 @@
     "pack:release": "npm run check && node scripts/package.mjs"
   },
   "dependencies": {
-    "@openai/codex-sdk": "0.162.1",
+    "@openai/codex-sdk": "0.164.0",
     "@stephen-riley/pcre2-wasm": "1.2.4",
     "saxes": "6.0.0"
   },
