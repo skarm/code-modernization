@@ -1,0 +1,50 @@
+{
+  "name": "code-modernization",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Code modernization plugin with official Codex SDK workflows",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "scan:secrets": "node scripts/scan-secrets.mjs",
+    "doctor": "node scripts/modernize.mjs doctor",
+    "smoke:sdk": "node scripts/smoke-sdk.mjs",
+    "test:proof": "node --test tests/proof-*.test.mjs",
+    "proof": "node scripts/proof-pack.mjs",
+    "panel": "node scripts/panel.mjs",
+    "test:ui": "node --test tests/ui.test.mjs",
+    "pack:release": "npm run check && node scripts/package.mjs"
+  },
+  "dependencies": {
+    "@openai/codex-sdk": "0.162.1",
+    "@stephen-riley/pcre2-wasm": "1.2.4",
+    "saxes": "6.0.0"
+  },
+  "files": [
+    "README.ru.md",
+    ".codex-plugin/",
+    ".agents/plugins/marketplace.json",
+    "skills/",
+    "agents/",
+    "hooks/",
+    "runtime/",
+    "scripts/",
+    "assets/",
+    "references/",
+    "workflows/",
+    "examples/",
+    "docs/",
+    "tests/",
+    "LICENSE",
+    "NOTICE",
+    "CONTRIBUTING.md",
+    "CONTRIBUTING.ru.md",
+    ".github/SECURITY.md",
+    ".github/SECURITY.ru.md"
+  ]
+}

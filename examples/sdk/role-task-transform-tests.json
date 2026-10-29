@@ -1,0 +1,18 @@
+{
+  "role": "test-engineer",
+  "purpose": "transform-tests",
+  "write": true,
+  "candidate": "modernized/my-service",
+  "scope": "orders",
+  "task": "Create characterization tests only within the approved orders scope. Do not implement or modernize production code. Use observed legacy behavior and preserve uncertainty. Record actual commands and missing prerequisites.",
+  "gates": {
+    "brief": {
+      "file": "MODERNIZATION_BRIEF.md",
+      "quote": "REPLACE_WITH_EXACT_RECORDED_HUMAN_BRIEF_DECISION"
+    }
+  },
+  "contextFiles": [
+    "BUSINESS_RULES.md",
+    "MODERNIZATION_BRIEF.md"
+  ]
+}

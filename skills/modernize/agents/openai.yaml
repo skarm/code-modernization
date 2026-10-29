@@ -1,0 +1,6 @@
+interface:
+  display_name: modernize
+  short_description: Start or resume a modernization.
+  default_prompt: Use $modernize for the explicitly requested system and scope. Reuse the user's existing answers; stop at unresolved human approvals.
+policy:
+  allow_implicit_invocation: false

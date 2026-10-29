@@ -1,0 +1,8 @@
+{
+  "sourceVersion": "REPLACE_WITH_OBSERVED_SOURCE_VERSION",
+  "targetVersion": "REPLACE_WITH_APPROVED_TARGET_VERSION",
+  "contextFiles": [
+    "ASSESSMENT.md",
+    "MODERNIZATION_BRIEF.md"
+  ]
+}

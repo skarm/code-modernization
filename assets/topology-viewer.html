@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Code Modernization · Topology</title>
+<style>
+:root{color-scheme:dark;--bg:#101722;--panel:#182231;--line:#344354;--text:#edf1f6;--muted:#a8b5c5;--accent:#94d6c6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,sans-serif}
+header{padding:20px 24px 16px;border-bottom:1px solid var(--line)}h1{font-size:21px;margin:0 0 4px}p{margin:5px 0;color:var(--muted)}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}input,select,button{font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:7px 10px;max-width:100%}button{cursor:pointer}button:disabled{opacity:.4;cursor:default}button:hover:not(:disabled){border-color:var(--accent)}input[type=checkbox]{accent-color:var(--accent)}label{display:inline-flex;gap:5px;align-items:center}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;height:calc(100vh - 218px);min-height:500px}main{position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#172331,var(--bg))}aside{border-left:1px solid var(--line);padding:20px;overflow:auto}aside h2{font-size:18px;margin-top:0;overflow-wrap:anywhere}aside h3{font-size:14px;margin:20px 0 5px;color:var(--accent)}aside p,aside li{overflow-wrap:anywhere}ul{padding-left:20px}#map{width:100%;height:100%;touch-action:none;cursor:grab}#map.dragging{cursor:grabbing}.node circle{stroke:#708298;stroke-width:1;vector-effect:non-scaling-stroke}.node.branch circle{fill:#1c2a3b;stroke:#405267}.node.leaf circle{fill:#45667e}.node.leaf[data-kind=datastore] circle{fill:#537763}.node.leaf[data-kind=job] circle{fill:#7b6744}.node.leaf[data-kind=screen] circle{fill:#6b587d}.node[data-entry=true] circle{stroke-width:2.4;stroke:#9bdecf}.node[data-dead=true] circle{stroke-dasharray:4 3}.node.selected circle,.node.flow circle{stroke:#ffdf88;stroke-width:3}.node.matched circle{stroke:#fff;stroke-width:2}.node.dim{opacity:.2}.node text{fill:#f0f5fa;font:12px system-ui,sans-serif;pointer-events:none;text-anchor:middle}.node.branch text{fill:#abbdd0;font-size:13px}.edge{fill:none;stroke:#8facca;stroke-width:1.2;opacity:.3;vector-effect:non-scaling-stroke;marker-end:url(#arrow)}.edge[data-kind=dispatch]{stroke-dasharray:5 3}.edge[data-kind=read]{stroke:#9fd7ab}.edge[data-kind=write]{stroke:#e7c38f}.edge.active{opacity:.95;stroke-width:2.4}.edge.dim{opacity:.03}#status{margin-top:10px;min-height:20px}#status.error{color:#ffb0a3}#flow-note{min-height:22px;color:var(--accent)}#empty{position:absolute;inset:25% 10%;text-align:center;pointer-events:none}#empty strong{display:block;font-size:22px;margin-bottom:10px}#search-results{padding-left:0;list-style:none}#search-results button{text-align:left;margin-bottom:5px;width:100%}.hint{font-size:12px;color:var(--muted)}a{color:var(--accent)}
+@media(max-width:900px){.layout{grid-template-columns:1fr;height:auto}main{height:65vh;min-height:420px}aside{border-left:0;border-top:1px solid var(--line)}header{padding:16px}.controls{gap:7px}}
+</style>
+</head>
+<body>
+<header>
+<h1 id="heading">Code Modernization · Topology</h1>
+<p>Offline-capable view of topology.json. Data is embedded or chosen locally; no external requests or workspace writes.</p>
+<div class="controls">
+<label>Open topology.json <input id="file" type="file" accept=".json,application/json"></label>
+<input id="search" type="search" aria-label="Search modules" placeholder="Search name, path, description…" maxlength="500">
+<button id="reset" type="button">Reset view</button>
+<label><input class="edge-toggle" type="checkbox" value="call" checked>Calls</label>
+<label><input class="edge-toggle" type="checkbox" value="dispatch" checked>Dispatch</label>
+<label><input class="edge-toggle" type="checkbox" value="read" checked>Reads</label>
+<label><input class="edge-toggle" type="checkbox" value="write" checked>Writes</label>
+</div>
+<div class="controls">
+<select id="flows" aria-label="Business flow"><option value="">Choose a business flow</option></select>
+<button id="prev" type="button" disabled>Previous step</button><button id="next" type="button" disabled>Next step</button>
+<span id="flow-note"></span>
+</div>
+<div id="status" role="status" aria-live="polite">No topology loaded. File contents stay in this browser.</div>
+</header>
+<div class="layout">
+<main>
+<svg id="map" viewBox="0 0 1000 850" role="img" aria-label="Interactive system topology">
+<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L6,3 L0,6" fill="#98adc3"></path></marker></defs>
+<g id="viewport"><g id="nodes"></g><g id="edges" pointer-events="none"></g></g>
+</svg>
+<div id="empty"><strong>Choose your topology.json</strong><p>Nested module map, data access, callers and persona flows.<br>Drag to pan. Scroll to zoom. Select a module for details.</p></div>
+</main>
+<aside>
+<h2 id="detail-title">No module selected</h2>
+<div id="detail"></div>
+<h3>Search results</h3><ul id="search-results"></ul>
+<p class="hint">Solid highlighted border: entry point. Dashed border: declared dead end. Yellow: selected node or current flow step. Smaller circles use known LOC within each sibling group; unknown size is not zero.</p>
+<p class="hint">The map shows recorded relationships. It cannot establish completeness or approvals.</p>
+</aside>
+</div>
+<!-- Optional embedded JSON: replace the exact marker with JSON after escaping <, > and & as JSON Unicode escapes. Otherwise use the local chooser. -->
+<script id="topology-data" type="application/json">__TOPOLOGY_DATA__</script>
+<script>
+'use strict';
+(() => {
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = $('map'), viewport = $('viewport');
+  let data = null, nodes = new Map(), elements = new Map(), positions = new Map();
+  let edgeElements = [], chosen = '', activeNodes = new Set(), selectedFlow = -1, flowStep = 0;
+  let view = {x:0,y:0,k:1}, drag = null, dragged = false, loadGeneration = 0;
+  const scalar = v => typeof v === 'string' || typeof v === 'number' ? String(v) : '';
+  const message = (text, error=false) => { $('status').textContent=text; $('status').className=error?'error':''; };
+  const make = (tag, attrs={}) => { const e=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs)) e.setAttribute(k,String(v)); return e; };
+  const paragraph = text => { const p=document.createElement('p');p.textContent=text;return p; };
+  function validate(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj) || !obj.root) throw new Error('Expected an object containing root.');
+    const found=new Map(), leaves=new Set();
+    function visit(n, depth) {
+      if (depth>30) throw new Error('Topology nesting exceeds 30 levels.');
+      if (!n || typeof n!=='object' || Array.isArray(n) || typeof n.id!=='string' || !n.id) throw new Error('Every node needs a nonempty string id.');
+      if (found.has(n.id)) throw new Error('Duplicate node id: '+n.id);
+      if (found.size>=5000) throw new Error('This viewer supports at most 5,000 nodes; use domain chunks for larger maps.');
+      if (n.loc!==undefined && n.loc!==null && (typeof n.loc!=='number' || !Number.isFinite(n.loc) || n.loc<0)) throw new Error('Invalid LOC for '+n.id);
+      if (n.children!==undefined && !Array.isArray(n.children)) throw new Error('children must be an array: '+n.id);
+      found.set(n.id,n);
+      if (n.children && n.children.length) n.children.forEach(c=>visit(c,depth+1)); else leaves.add(n.id);
+    }
+    visit(obj.root,0);
+    for (const key of ['edges','entryPoints','deadEnds','observations','flows']) if (obj[key]!==undefined && !Array.isArray(obj[key])) throw new Error(key+' must be an array.');
+    if ((obj.edges||[]).length>30000) throw new Error('Too many edges for the offline viewer; use domain chunks.');
+    for (const e of obj.edges||[]) {
+      if (!e || !leaves.has(e.source) || !leaves.has(e.target)) throw new Error('An edge endpoint does not resolve to a leaf.');
+      if (!['call','dispatch','read','write'].includes(e.kind)) throw new Error('Unsupported edge kind: '+scalar(e.kind));
+    }
+    for (const key of ['entryPoints','deadEnds']) for(const id of obj[key]||[]) if (!found.has(id)) throw new Error(key+' contains an unknown node.');
+    for (const f of obj.flows||[]) {
+      if (!f || !Array.isArray(f.steps)) throw new Error('Each flow needs steps.');
+      for (const s of f.steps) if (!s || !Array.isArray(s.nodes) || s.nodes.some(id=>!found.has(id))) throw new Error('A flow step contains unknown nodes.');
+    }
+    return found;
+  }
+  function layout(n,x,y,r) {
+    positions.set(n.id,{x,y,r});
+    const children=n.children||[];if(!children.length)return;
+    const cols=Math.ceil(Math.sqrt(children.length)), rows=Math.ceil(children.length/cols);
+    const cell=r*.86/(Math.hypot((cols-1)/2,(rows-1)/2)+.48), base=cell*.44;
+    const maxLOC=Math.max(1,...children.map(c=>typeof c.loc==='number'?c.loc:1));
+    children.forEach((c,i)=>{
+      const factor=c.children&&c.children.length?1:(c.loc===undefined||c.loc===null?.8:Math.max(.28,Math.sqrt(c.loc/maxLOC)));
+      layout(c,x+(i%cols-(cols-1)/2)*cell,y+(Math.floor(i/cols)-(rows-1)/2)*cell+Math.min(r*.07,12),base*factor);
+    });
+  }
+  function applyView(){viewport.setAttribute('transform',`translate(${view.x} ${view.y}) scale(${view.k})`);}
+  function reset(){view={x:0,y:0,k:1};applyView();}
+  function fitNode(id){const p=positions.get(id);if(!p)return;const k=Math.max(1,Math.min(20,230/Math.max(10,p.r)));view={k,x:500-p.x*k,y:425-p.y*k};applyView();}
+  function addDetailHeading(text){const h=document.createElement('h3');h.textContent=text;$('detail').append(h);}
+  function select(id,fit=false){
+    const n=nodes.get(id);if(!n)return;chosen=id;$('detail-title').textContent=scalar(n.name)||id;$('detail').replaceChildren();
+    for(const [label,value] of [['ID',id],['Kind',n.kind],['Language',n.language],['Path',n.file],['LOC',n.loc===null||n.loc===undefined?'unknown':n.loc]]) if(value!==undefined) $('detail').append(paragraph(label+': '+scalar(value)));
+    if(n.description)$('detail').append(paragraph(scalar(n.description)));
+    const related=(data.edges||[]).filter(e=>e.source===id||e.target===id);addDetailHeading('Connections ('+related.length+')');
+    for(const e of related.slice(0,100)){
+      const other=e.source===id?e.target:e.source,b=document.createElement('button');b.type='button';
+      b.textContent=(e.source===id?'→ ':'← ')+e.kind+': '+(scalar(nodes.get(other).name)||other);b.addEventListener('click',()=>select(other,true));
+      const p=document.createElement('p');p.append(b);$('detail').append(p);
+    }
+    if(related.length>100)$('detail').append(paragraph('Showing the first 100 connections.'));
+    if(!related.length)$('detail').append(paragraph('No declared connections. This does not establish that the module is unused.'));
+    updateHighlights();if(fit)fitNode(id);
+  }
+  function updateHighlights(){
+    const query=$('search').value.trim().toLocaleLowerCase();
+    for(const [id,el] of elements){
+      const n=nodes.get(id),matched=query&&[n.name,n.id,n.file,n.description].some(v=>scalar(v).toLocaleLowerCase().includes(query));
+      el.classList.toggle('selected',id===chosen);el.classList.toggle('flow',activeNodes.has(id));el.classList.toggle('matched',!!matched);
+      el.classList.toggle('dim',!!query&&!matched&&!(n.children&&n.children.length));
+    }
+    const visible=new Set([...document.querySelectorAll('.edge-toggle:checked')].map(x=>x.value));
+    for(const [e,el] of edgeElements){el.style.display=visible.has(e.kind)?'':'none';const active=activeNodes.size?activeNodes.has(e.source)&&activeNodes.has(e.target):!!chosen&&(e.source===chosen||e.target===chosen);el.classList.toggle('active',active);el.classList.toggle('dim',(!!chosen||!!activeNodes.size)&&!active);}
+  }
+  function search(){
+    $('search-results').replaceChildren();if(!data)return;
+    const query=$('search').value.trim().toLocaleLowerCase();if(query){
+      let total=0;
+      for(const [id,n] of nodes) if([n.id,n.name,n.file,n.description].some(v=>scalar(v).toLocaleLowerCase().includes(query))){
+        total++;if(total>40)continue;const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.textContent=(scalar(n.name)||id)+(n.file?' · '+scalar(n.file):'');b.addEventListener('click',()=>select(id,true));li.append(b);$('search-results').append(li);
+      }
+      const li=document.createElement('li');li.textContent=total+' matches'+(total>40?' (first 40 shown)':'');$('search-results').prepend(li);
+    }updateHighlights();
+  }
+  function flow(){
+    const f=data&&selectedFlow>=0?(data.flows||[])[selectedFlow]:null;activeNodes=new Set();
+    if(f&&f.steps.length){flowStep=Math.max(0,Math.min(flowStep,f.steps.length-1));const s=f.steps[flowStep];activeNodes=new Set(s.nodes);$('flow-note').textContent=(scalar(f.persona)?scalar(f.persona)+' · ':'')+(flowStep+1)+'/'+f.steps.length+' · '+scalar(s.label);}
+    else $('flow-note').textContent='';
+    $('prev').disabled=!f||flowStep<=0;$('next').disabled=!f||flowStep>=f.steps.length-1;updateHighlights();
+  }
+  function render(obj){
+    const valid=validate(obj);drag=null;dragged=false;data=obj;nodes=valid;positions=new Map();elements=new Map();edgeElements=[];chosen='';activeNodes=new Set();selectedFlow=-1;flowStep=0;
+    $('nodes').replaceChildren();$('edges').replaceChildren();$('detail').replaceChildren();$('detail-title').textContent='Select a module';$('search').value='';$('search-results').replaceChildren();
+    layout(data.root,500,425,390);const entry=new Set(data.entryPoints||[]),dead=new Set(data.deadEnds||[]);
+    for(const [id,n] of nodes){
+      const p=positions.get(id),branch=!!(n.children&&n.children.length),g=make('g',{'class':'node '+(branch?'branch':'leaf'),'data-kind':scalar(n.kind),'data-entry':entry.has(id),'data-dead':dead.has(id),'data-node-id':id,'tabindex':0,'role':'button','aria-label':scalar(n.name)||id});
+      g.append(make('circle',{cx:p.x,cy:p.y,r:p.r}));
+      const title=make('title');title.textContent=(scalar(n.name)||id)+(n.file?'\n'+scalar(n.file):'');g.append(title);
+      const t=make('text',{x:p.x,y:branch?p.y-p.r+Math.min(22,p.r*.22):p.y+4,'font-size':Math.max(3,Math.min(13,p.r*.3))});
+      t.style.fontSize=Math.max(3,Math.min(13,p.r*.3))+'px';
+      const name=scalar(n.name)||id;t.textContent=name.length>25?name.slice(0,23)+'…':name;g.append(t);
+      g.addEventListener('click',event=>{if(!dragged){event.stopPropagation();select(id);}});g.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select(id,true);}});
+      $('nodes').append(g);elements.set(id,g);
+    }
+    for(const e of data.edges||[]){const a=positions.get(e.source),b=positions.get(e.target),dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
+      let d;if(e.source===e.target)d=`M${a.x} ${a.y-a.r} C${a.x+a.r*2} ${a.y-a.r*2},${a.x+a.r*2} ${a.y+a.r*2},${a.x+a.r*.7} ${a.y+a.r*.7}`;
+      else d=`M${a.x+dx/len*a.r} ${a.y+dy/len*a.r} L${b.x-dx/len*b.r} ${b.y-dy/len*b.r}`;
+      const el=make('path',{d,'class':'edge','data-kind':e.kind});$('edges').append(el);edgeElements.push([e,el]);}
+    $('flows').replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Choose a business flow';$('flows').append(empty);
+    (data.flows||[]).forEach((f,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=scalar(f.name)||'Flow '+(i+1);$('flows').append(o);});
+    $('heading').textContent=(scalar(data.system)||scalar(data.root.name)||'System')+' · Topology';$('empty').hidden=true;
+    message(nodes.size+' nodes · '+(data.edges||[]).length+' edges · '+(data.flows||[]).length+' flows · static local snapshot');
+    if((data.observations||[]).length){addDetailHeading('Observations');for(const o of data.observations)$('detail').append(paragraph(typeof o==='string'?o:JSON.stringify(o)));}
+    reset();flow();
+  }
+  $('file').addEventListener('change',async event=>{
+    const f=event.target.files[0];if(!f)return;const generation=++loadGeneration;
+    try{if(f.size>20*1024*1024)throw new Error('JSON exceeds 20 MiB; use a domain chunk.');const text=await f.text();if(generation!==loadGeneration)return;render(JSON.parse(text));}
+    catch(error){if(generation===loadGeneration)message('Could not load topology: '+error.message+(data?' Previous map remains loaded.':''),true);}
+  });
+  $('search').addEventListener('input',search);$('reset').addEventListener('click',reset);
+  document.querySelectorAll('.edge-toggle').forEach(e=>e.addEventListener('change',updateHighlights));
+  $('flows').addEventListener('change',()=>{selectedFlow=$('flows').value===''?-1:Number($('flows').value);flowStep=0;chosen='';flow();});
+  $('prev').addEventListener('click',()=>{flowStep--;flow();});$('next').addEventListener('click',()=>{flowStep++;flow();});
+  function point(event){const p=svg.createSVGPoint();p.x=event.clientX;p.y=event.clientY;const matrix=svg.getScreenCTM();return matrix?p.matrixTransform(matrix.inverse()):{x:0,y:0};}
+  svg.addEventListener('wheel',event=>{event.preventDefault();const p=point(event),k=Math.max(.4,Math.min(30,view.k*Math.exp(-event.deltaY*.0015)));view.x=p.x-(p.x-view.x)*k/view.k;view.y=p.y-(p.y-view.y)*k/view.k;view.k=k;applyView();},{passive:false});
+  svg.addEventListener('pointerdown',event=>{if(event.button!==0)return;drag={p:point(event),x:view.x,y:view.y,id:event.pointerId};dragged=false;svg.classList.add('dragging');});
+  svg.addEventListener('pointermove',event=>{if(!drag||drag.id!==event.pointerId)return;const p=point(event);if(Math.abs(p.x-drag.p.x)+Math.abs(p.y-drag.p.y)>4){dragged=true;svg.setPointerCapture(event.pointerId);}if(dragged){view.x=drag.x+p.x-drag.p.x;view.y=drag.y+p.y-drag.p.y;applyView();}});
+  const end=event=>{if(!drag||drag.id!==event.pointerId)return;drag=null;svg.classList.remove('dragging');if(svg.hasPointerCapture(event.pointerId))svg.releasePointerCapture(event.pointerId);};
+  svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  const embedded=$('topology-data').textContent.trim();if(embedded&&embedded!=='__TOPOLOGY_DATA__'){try{render(JSON.parse(embedded));}catch(error){message('Embedded topology is invalid: '+error.message,true);}}
+  window.addEventListener('message',event=>{
+    if(window.parent===window||event.source!==window.parent)return;const msg=event.data;
+    if(msg?.type==='modernization:state-request'&&typeof msg.requestId==='string')window.parent.postMessage({type:'modernization:state-response',requestId:msg.requestId,state:{chosen,view,query:$('search').value,selectedFlow,flowStep,toggles:[...document.querySelectorAll('.edge-toggle')].map(e=>e.checked),y:window.scrollY,asideY:document.querySelector('aside').scrollTop}},'*');
+    if(msg?.type==='modernization:state-restore'&&msg.state&&typeof msg.state==='object'){
+      const s=msg.state;if(typeof s.query==='string'){$('search').value=s.query.slice(0,500);search();}
+      if(Number.isInteger(s.selectedFlow)&&s.selectedFlow>=0&&s.selectedFlow<(data?.flows?.length??0)){selectedFlow=s.selectedFlow;flowStep=Math.max(0,Number.isInteger(s.flowStep)?s.flowStep:0);$('flows').value=String(selectedFlow);flow();}
+      if(typeof s.chosen==='string'&&nodes.has(s.chosen))select(s.chosen,false);
+      document.querySelectorAll('.edge-toggle').forEach((e,i)=>{if(typeof s.toggles?.[i]==='boolean')e.checked=s.toggles[i];});updateHighlights();
+      if(s.view&&[s.view.x,s.view.y,s.view.k].every(Number.isFinite)){view={x:s.view.x,y:s.view.y,k:Math.max(.4,Math.min(30,s.view.k))};applyView();}
+      requestAnimationFrame(()=>{if(Number.isFinite(s.y))window.scrollTo(0,Math.max(0,s.y));if(Number.isFinite(s.asideY))document.querySelector('aside').scrollTop=s.asideY;});
+    }
+  });
+})();
+</script>
+</body>
+</html>

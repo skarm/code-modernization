@@ -1,0 +1,6 @@
+interface:
+  display_name: modernize-uplift
+  short_description: Upgrade the stack through a baseline and proven pilot.
+  default_prompt: Use $modernize-uplift for the explicitly requested system and scope. Reuse the user's existing answers; stop at unresolved human approvals.
+policy:
+  allow_implicit_invocation: false

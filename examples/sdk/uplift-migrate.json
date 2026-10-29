@@ -1,0 +1,38 @@
+{
+  "candidate": "modernized/my-service-uplifted",
+  "contextFiles": [
+    "PLAYBOOK.md",
+    "DELTA_CATALOG.md",
+    "MODERNIZATION_BRIEF.md"
+  ],
+  "gates": {
+    "brief": {
+      "file": "MODERNIZATION_BRIEF.md",
+      "quote": "REPLACE_WITH_EXACT_RECORDED_HUMAN_BRIEF_DECISION"
+    },
+    "pilot": {
+      "file": "BASELINE.md",
+      "quote": "REPLACE_WITH_EXACT_RECORDED_HUMAN_PILOT_DECISION"
+    },
+    "fanout": {
+      "file": "PLAYBOOK.md",
+      "quote": "REPLACE_WITH_EXACT_RECORDED_HUMAN_FANOUT_DECISION"
+    }
+  },
+  "batchSize": 4,
+  "units": [
+    {
+      "name": "pricing",
+      "path": "internal/pricing",
+      "deps": []
+    },
+    {
+      "name": "orders",
+      "path": "internal/orders",
+      "deps": [
+        "pricing"
+      ]
+    }
+  ],
+  "externalBuilt": []
+}

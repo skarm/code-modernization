@@ -1,0 +1,6 @@
+interface:
+  display_name: modernize-sign
+  short_description: Record explicit human approval of the brief only.
+  default_prompt: Use $modernize-sign for the explicitly requested system and scope. Reuse the user's existing answers; stop at unresolved human approvals.
+policy:
+  allow_implicit_invocation: false

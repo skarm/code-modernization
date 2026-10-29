@@ -1,0 +1,5 @@
+{
+  "role": "legacy-analyst",
+  "task": "Inspect the actual source tree and draft an evidence-based assessment. Do not change source code or execute mutating commands. Separate confirmed observations, inferences and unknowns. Return proposed report content as artifacts; do not write it yourself.",
+  "write": false
+}

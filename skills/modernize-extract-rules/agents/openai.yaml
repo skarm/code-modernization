@@ -1,0 +1,6 @@
+interface:
+  display_name: modernize-extract-rules
+  short_description: Extract and challenge source-grounded business rules.
+  default_prompt: Use $modernize-extract-rules for the explicitly requested system and scope. Reuse the user's existing answers; stop at unresolved human approvals.
+policy:
+  allow_implicit_invocation: false

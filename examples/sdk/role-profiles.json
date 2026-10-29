@@ -1,0 +1,11 @@
+{
+  "architecture-critic": {
+    "reasoningEffort": "high"
+  },
+  "security-auditor": {
+    "reasoningEffort": "high"
+  },
+  "test-engineer": {
+    "reasoningEffort": "high"
+  }
+}

@@ -1,0 +1,31 @@
+.DS_Store
+.idea/
+.vscode/
+node_modules/
+coverage/
+*.log
+dist/
+/.selftest/
+/analysis/
+/legacy/
+/modernized/
+
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+auth.json
+
+# Generated release and verification artifacts
+/code-modernization-*.tar.gz
+/code-modernization-*.sha256
+/docs/test-results*
+/docs/package-check*.json
+/docs/code-review*.json
+/docs/installation-*.json
+/docs/self-assessment.json
+/docs/sdk-smoke.json
+/docs/ui-benchmark.json

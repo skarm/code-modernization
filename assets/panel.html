@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="color-scheme" content="dark light">
+<title>Code Modernization</title><link rel="stylesheet" href="/panel.css">
+</head>
+<body>
+<a href="#main" class="skip">Skip to the panel</a>
+<header class="appbar">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">▦</span><div>Code Modernization<small id="workspace-mode">Codex · local workspace</small><small id="status-summary" class="status-summary" role="status">Connecting…</small></div></div>
+  <div class="controls"><label class="sr" for="system">System</label><select id="system"></select><label class="sr" for="track">Track</label><select id="track"><option value="auto">Auto track</option><option value="transform">Rewrite</option><option value="uplift">Uplift</option><option value="reimagine">Reimagine</option></select><label class="sr" for="panel-mode">Panel startup</label><select id="panel-mode"><option value="auto">Panel: auto</option><option value="command">Panel: on command</option><option value="off">Panel: off</option></select><button id="xray-toggle" type="button" aria-pressed="true">X-ray: on</button><button id="theme" type="button">Theme: dark</button></div>
+</header>
+<nav class="tabs" aria-label="Workspace views"><button data-view="progress" aria-current="page">Live panel</button><button data-view="review">Rule review</button><button data-view="report">Report</button><button data-view="topology">Topology</button><button data-view="fleet">Fleet</button><span class="connection" id="connection" role="status">Connecting…</span></nav>
+<div id="error" class="error" role="alert" hidden></div>
+<main id="main" tabindex="-1"><p class="empty">Reading saved modernization artifacts…</p></main>
+<footer><span id="stamp">No snapshot yet</span><span>Live events · saved artifacts · explicit run controls</span></footer>
+<dialog id="sign-dialog" aria-labelledby="sign-title">
+  <form id="sign-form"><div class="section-head"><h2 id="sign-title">Sign the brief</h2><button type="button" data-close-dialog aria-label="Close sign dialog">×</button></div>
+  <p class="muted">Approve the revision shown below. This records the brief's approval block.</p>
+  <p id="sign-stale" class="warn-text" hidden>The brief changed while this dialog was open. <button id="sign-reload" type="button">Read current revision</button></p>
+  <pre id="sign-summary"></pre><details><summary>Read the complete brief</summary><pre id="sign-brief"></pre></details>
+  <label for="approver">Who approves? <span class="muted">Name, role</span></label><input id="approver" name="approver" maxlength="160" required autocomplete="off" placeholder="Your name, your role">
+  <fieldset><legend>Approval covers</legend><label class="radio"><input type="radio" name="covers" value="phase-1" required>Phase 1 only</label><label class="radio"><input type="radio" name="covers" value="full" required>Full plan</label></fieldset>
+  <label class="radio"><input id="approve-confirm" type="checkbox" required>I approve this revision with the selected scope.</label>
+  <p id="sign-error" class="bad-text" role="alert"></p><div class="actions"><button class="primary" type="submit">Sign the brief</button><button type="button" data-close-dialog>Cancel</button></div></form>
+</dialog>
+<dialog id="control-dialog" aria-labelledby="control-title"><form id="control-form">
+  <div class="section-head"><h2 id="control-title">Resume saved run</h2><button type="button" data-close-dialog aria-label="Close run control">×</button></div>
+  <pre id="control-summary"></pre>
+  <p class="muted">Uses the saved workflow, source, permissions and remaining budgets. Completed tasks are reused only when their recorded inputs and outputs still match.</p>
+  <label class="radio"><input id="control-confirm" type="checkbox" required>I authorize this action for the saved request shown above.</label>
+  <label id="control-stopped-row" class="radio"><input id="control-stopped" type="checkbox">I checked that all former workers have stopped.</label>
+  <label id="control-writes-row" class="radio"><input id="control-writes" type="checkbox">I reviewed partial candidate changes and authorize writes in the saved scopes again.</label>
+  <label id="control-decisions-row" class="radio"><input id="control-decisions" type="checkbox">I reviewed the changed decisions. Revalidate and use this revision for subsequent tasks.</label>
+  <p id="control-error" class="bad-text" role="alert"></p>
+  <div class="actions"><button class="primary" type="submit">Resume run</button><button type="button" data-close-dialog>Cancel</button></div>
+</form></dialog>
+<dialog id="source-dialog" aria-labelledby="source-title"><div class="section-head"><h2 id="source-title">Source</h2><button type="button" data-close-dialog aria-label="Close source">×</button></div><pre id="source-note" class="muted"></pre><pre id="source-code" tabindex="0"></pre></dialog>
+<div class="sr" id="announcement" role="status" aria-live="polite"></div>
+<script src="/panel.mjs" type="module"></script>
+</body></html>

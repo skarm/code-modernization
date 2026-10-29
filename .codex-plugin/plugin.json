@@ -1,0 +1,21 @@
+{
+  "name": "code-modernization",
+  "version": "0.1.0",
+  "description": "Unofficial Codex SDK adaptation of Anthropic Code Modernization: discover, approve, migrate, verify and harden.",
+  "license": "Apache-2.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Code Modernization",
+    "shortDescription": "Modernization workflows executed with the official Codex SDK.",
+    "longDescription": "Official Codex SDK workflows, deterministic source shards and rule catalogs, trusted Codex lifecycle hooks, a local browser panel, rule review, brief approval, proof reports and SDK/parent activity. Node.js 20+, pinned SDK, XML and WASM regex dependencies; no Python runtime or telemetry.",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use $modernize to understand this codebase and plan its modernization without changing the legacy source."
+    ]
+  },
+  "hooks": "./hooks/hooks.json"
+}

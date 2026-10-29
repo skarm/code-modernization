@@ -1,0 +1,85 @@
+Code Modernization — unofficial adaptation
+
+The current package version is recorded in package.json. Version numbers in the
+modification history below refer to earlier package states, not the current version.
+
+This package is derived from Code Modernization by Anthropic:
+https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-modernization
+Upstream manifest version inspected: 1.0.0. Sources inspected: 2026-10-15 (main).
+Upstream license: Apache License, Version 2.0; included in LICENSE.
+
+Original authorship and attribution belong to Anthropic and the upstream contributors.
+This is not an official Anthropic or OpenAI distribution and is not endorsed by them.
+
+Modified files: all command/skill and agent Markdown files in this port are adaptations.
+Changes: Claude-specific invocation, tools, workflow runtime and hooks are replaced with
+Codex skills, explicit role instructions and foreground delegation. Python utilities and
+telemetry are not distributed. Reports were initially written through host file tools;
+0.6.0 adds the Node renderer and local browser interface described below.
+See docs/UPSTREAM.md for the scope and provenance of these changes.
+No test result obtained by the original Claude plugin is claimed for this port.
+
+Additional modifications in 0.3.0 (2026-10-15): executable workflow adapters using the
+public official Codex SDK APIs; Node.js command entry points, JSON schemas, plain-file
+run state, tests and SDK-specific skills/documentation. These new files are port-specific,
+not copies of an OpenAI runtime. The separately installed @openai/codex-sdk retains its
+own distribution and license. No SDK binary or npm package is bundled in this archive.
+
+Additional modifications in 0.4.0 (2026-10-15): input freshness and write-scope fixes,
+command-evidenced unit test gates, partial-result propagation, native Node observation
+comparison following the documented byte-mask/decimal constraints of upstream compare.py,
+regression tests and reproducible npm dependencies. The original Python proof engine
+and regex-mask semantics were not reproduced in that version.
+
+Additional modifications in 0.5.0 (2026-10-15): Node ports of scripts/proof_pack.py,
+baseline_diff.py, trace_rules.py and uplift_checks.py from upstream commit
+c8874f5ad883e26428f483ffa4d537cc81489e64, in runtime/proof-*.mjs. These files are
+modified translations of Anthropic's Apache-2.0 code. scripts/proof-pack.mjs provides
+the positional CLI; verification skills use the deterministic Node evaluator.
+runtime/regex-mask.mjs implements a bounded Python-compatible Latin-1 regex subset.
+tests/fixtures/proof-pack-upstream.json.gz contains inputs and expected decisions
+derived from upstream scripts/tests/test_proof_tools.py and test_proof_rules_run.py;
+the Node tests replay them without a Python dependency. The upstream authors retain
+their copyright and attribution. No test result of this port is an Anthropic endorsement.
+The separately installed saxes and xmlchars retain their own licenses; their packages
+are not vendored in this source distribution.
+
+Additional modifications in 0.6.0 (2026-10-15): runtime/ui/upstream contains 21 adapted
+plain-function modules from hooks/reader, hooks/review, hooks/map, hooks/fleet, hooks/xray,
+hooks/paths.ts, hooks/text.ts and hooks/sign.ts at the same pinned Anthropic commit.
+TypeScript types were erased and ESM import extensions added; system identifiers in
+text.mjs follow this port's runtime contract. Claude-specific JSX and hook registration
+are replaced by the browser UI in assets/panel.* and a foreground loopback Node service.
+assets/report-template.html is the original template, adapted for Codex/demo labeling and sandboxed-frame navigation;
+runtime/ui/report.mjs, proof-view.mjs and equivalence-view.mjs adapt build_report.py's
+artifact projection and offline rendering. The source authors retain their attribution.
+assets/vendor/mermaid.min.js is the upstream bundled Mermaid distribution; its MIT license
+is included at assets/vendor/LICENSE-mermaid.txt. New local decision controls, revision
+checks, SDK cancellation, synthetic examples and UI tests are port-specific changes.
+
+Additional modifications in 0.7.0 (2026-10-15): authenticated SSE, revision/replay protocol,
+bounded incremental journal tails and caches, keyed browser updates, workspace-scoped
+drafts, document state preservation, runner health/queue/budgets, cooperative pause/resume,
+explicit saved-run retry controls and concurrent human review with decision checkpoints.
+These additions are original to this unofficial port; they are not Claude host hooks.
+
+Additional modifications in 0.7.1 (2026-10-15): real installed-plugin self-assessment;
+LRU eviction of idle live subscriptions with active/read pinning; preserved explicit
+SDK/CLI locations on panel recovery; original cancellation/timeout diagnostics;
+installation instructions verified with the local Codex CLI.
+Report size units now distinguish source bytes/files from mapped lines/modules; unmapped dependencies remain unknown.
+
+Additional modifications in 0.8.0 (2026-10-16): Node adaptations of make_shards.py and
+render_rules.py; executable rule consolidation, selective security follow-ups and portfolio
+metrics; Codex lifecycle hooks, managed panel lifetime/preferences, supported read X-ray,
+parent/SDK test observations and recovered-command Fleet warnings. tests/fixtures/upstream-stacks.mjs
+adapts Anthropic tests/fixtures/stacks.ts at c8874f5ad883e26428f483ffa4d537cc81489e64.
+tests/fixtures/upstream-workspace.mjs likewise adapts tests/fixtures/workspace.ts from
+that commit. The original fixture authors retain their attribution. These hook APIs belong to Codex;
+native Claude terminal docking/prompt controls are not reproduced.
+
+Advanced regex masks use separately installed @stephen-riley/pcre2-wasm 1.2.4 (MIT),
+including its bundled PCRE2 WebAssembly and original licenses. No Python runtime is used.
+runtime/latin1-names.mjs derives character names/aliases for U+0000..U+00FF from Unicode
+16.0.0 UnicodeData.txt and NameAliases.txt, https://www.unicode.org/Public/16.0.0/ucd/.
+Unicode License V3 is included at assets/vendor/UNICODE-LICENSE.txt.

@@ -1,0 +1,6 @@
+interface:
+  display_name: modernize-map
+  short_description: Map modules, data access and business flows.
+  default_prompt: Use $modernize-map for the explicitly requested system and scope. Reuse the user's existing answers; stop at unresolved human approvals.
+policy:
+  allow_implicit_invocation: false

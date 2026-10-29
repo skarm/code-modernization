@@ -1,0 +1,6 @@
+interface:
+  display_name: modernize-brief
+  short_description: Prepare the original phase-gated modernization plan.
+  default_prompt: Use $modernize-brief for the explicitly requested system and scope. Reuse the user's existing answers; stop at unresolved human approvals.
+policy:
+  allow_implicit_invocation: false

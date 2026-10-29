@@ -1,0 +1,12 @@
+{
+  "systems": [
+    {
+      "name": "billing",
+      "source": "legacy/billing"
+    },
+    {
+      "name": "orders",
+      "source": "legacy/orders"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: modernize-panel
+  short_description: Open the live local panel or show a JSON status snapshot.
+  default_prompt: Use $modernize-panel for the explicitly requested system and scope. Reuse the user's existing answers; stop at unresolved human approvals.
+policy:
+  allow_implicit_invocation: false

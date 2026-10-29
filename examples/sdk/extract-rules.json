@@ -1,0 +1,17 @@
+{
+  "modules": [
+    {
+      "name": "order-pricing",
+      "files": [
+        "internal/orders/pricing.go"
+      ]
+    },
+    {
+      "name": "order-lifecycle",
+      "files": [
+        "internal/orders/state.go"
+      ]
+    }
+  ],
+  "batchSize": 8
+}

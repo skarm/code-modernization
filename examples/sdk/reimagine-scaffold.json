@@ -1,0 +1,33 @@
+{
+  "candidate": "modernized/my-service-reimagined",
+  "contextFiles": [
+    "AI_NATIVE_SPEC.md",
+    "REIMAGINED_ARCHITECTURE.md"
+  ],
+  "gates": {
+    "brief": {
+      "file": "MODERNIZATION_BRIEF.md",
+      "quote": "REPLACE_WITH_EXACT_RECORDED_HUMAN_BRIEF_DECISION"
+    },
+    "spec": {
+      "file": "AI_NATIVE_SPEC.md",
+      "quote": "REPLACE_WITH_EXACT_RECORDED_HUMAN_SPEC_DECISION"
+    },
+    "architecture": {
+      "file": "REIMAGINED_ARCHITECTURE.md",
+      "quote": "REPLACE_WITH_EXACT_RECORDED_HUMAN_ARCHITECTURE_DECISION"
+    }
+  },
+  "services": [
+    {
+      "name": "orders",
+      "path": "services/orders",
+      "contract": "REPLACE_WITH_APPROVED_ORDERS_SERVICE_CONTRACT"
+    },
+    {
+      "name": "billing",
+      "path": "services/billing",
+      "contract": "REPLACE_WITH_APPROVED_BILLING_SERVICE_CONTRACT"
+    }
+  ]
+}
